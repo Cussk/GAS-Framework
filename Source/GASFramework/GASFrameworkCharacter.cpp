@@ -14,6 +14,7 @@
 #include "AbilitySystemBlueprintLibrary.h"
 #include "AbilitySystem/Componets/GAS_AbilitySystemComponentBase.h"
 #include "AbilitySystem/Attribute/GAS_AttributeSetBase.h"
+#include "ActorComponents/GAS_CharacterMovementComponent.h"
 #include "DataAssets/CharacterDataAsset.h"
 
 #include "Net/UnrealNetwork.h"
@@ -22,11 +23,11 @@
 //////////////////////////////////////////////////////////////////////////
 // AGASFrameworkCharacter
 
-AGASFrameworkCharacter::AGASFrameworkCharacter()
+AGASFrameworkCharacter::AGASFrameworkCharacter(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer.SetDefaultSubobjectClass<UGAS_CharacterMovementComponent>(ACharacter::CharacterMovementComponentName))
 {
 	// Set size for collision capsule
 	GetCapsuleComponent()->InitCapsuleSize(42.f, 96.0f);
-		
+
 	// Don't rotate when the controller rotates. Let that just affect the camera.
 	bUseControllerRotationPitch = false;
 	bUseControllerRotationYaw = false;
