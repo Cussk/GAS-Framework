@@ -13,5 +13,10 @@ UCLASS()
 class GASFRAMEWORK_API UGAS_PhysicalMaterial : public UPhysicalMaterial
 {
 	GENERATED_BODY()
+
+public:
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = PhysicalMaterial)
+		class USoundBase* FootstepSound = nullptr;
 	
 };
