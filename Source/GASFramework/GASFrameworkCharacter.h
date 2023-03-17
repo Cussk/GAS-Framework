@@ -55,6 +55,8 @@ public:
 
 	bool ApplyGameplayEffectToSelf(TSubclassOf<UGameplayEffect> Effect, FGameplayEffectContextHandle InEffectContext);
 
+	virtual void Landed(const FHitResult& Hit) override;
+
 protected:
 
 	void GiveAbilities();
@@ -77,6 +79,9 @@ protected:
 
 	/** Called for looking input */
 	void Look(const FInputActionValue& Value);
+
+
+	void Jump(const FInputActionValue& value);
 			
 
 protected:
@@ -117,5 +122,20 @@ protected:
 
 	UPROPERTY(BlueprintReadOnly)
 		class UFootstepsComponent* FootstepsComponent;
+
+	// Gameplay Events
+
+protected:
+
+	UPROPERTY(EditDefaultsOnly)
+		FGameplayTag JumpEventTag;
+
+
+	// Gameplay Tags
+
+protected:
+
+	UPROPERTY(EditDefaultsOnly)
+		FGameplayTagContainer InAirTags;
 };
 

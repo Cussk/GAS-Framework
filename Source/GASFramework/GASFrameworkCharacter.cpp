@@ -119,6 +119,16 @@ bool AGASFrameworkCharacter::ApplyGameplayEffectToSelf(TSubclassOf<UGameplayEffe
 	return false;
 }
 
+void AGASFrameworkCharacter::Landed(const FHitResult& Hit)
+{
+	Super::Landed(Hit);
+
+	if (AbilitySystemComponent)
+	{
+		AbilitySystemComponent->RemoveActiveEffectsWithTags(InAirTags);
+	}
+}
+
 void AGASFrameworkCharacter::GiveAbilities()
 {
 	if (HasAuthority() && AbilitySystemComponent)
@@ -170,8 +180,11 @@ void AGASFrameworkCharacter::SetupPlayerInputComponent(class UInputComponent* Pl
 	if (UEnhancedInputComponent* EnhancedInputComponent = CastChecked<UEnhancedInputComponent>(PlayerInputComponent)) {
 		
 		//Jumping
-		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Triggered, this, &ACharacter::Jump);
-		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this, &ACharacter::StopJumping);
+		//EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Triggered, this, &ACharacter::Jump);
+		//EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this, &ACharacter::StopJumping);
+
+		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Triggered, this, &AGASFrameworkCharacter::Jump);
+
 
 		//Moving
 		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &AGASFrameworkCharacter::Move);
@@ -217,6 +230,18 @@ void AGASFrameworkCharacter::Look(const FInputActionValue& Value)
 		AddControllerYawInput(LookAxisVector.X);
 		AddControllerPitchInput(LookAxisVector.Y);
 	}
+}
+
+void AGASFrameworkCharacter::Jump(const FInputActionValue& value)
+{
+	//trigger jump through GAS ability
+
+	FGameplayEventData Payload;
+
+	Payload.Instigator = this;
+	Payload.EventTag = JumpEventTag;
+
+	UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(this, JumpEventTag, Payload);
 }
 
 FCharacterData AGASFrameworkCharacter::GetCharacterData() const
