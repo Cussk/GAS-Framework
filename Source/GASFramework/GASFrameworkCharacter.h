@@ -38,6 +38,10 @@ class AGASFrameworkCharacter : public ACharacter, public IAbilitySystemInterface
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	class UInputAction* JumpAction;
 
+	/** Crouch Input Action */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	class UInputAction* CrouchAction;
+
 	/** Move Input Action */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	class UInputAction* MoveAction;
@@ -56,6 +60,10 @@ public:
 	bool ApplyGameplayEffectToSelf(TSubclassOf<UGameplayEffect> Effect, FGameplayEffectContextHandle InEffectContext);
 
 	virtual void Landed(const FHitResult& Hit) override;
+
+	virtual void OnStartCrouch(float HalfHeightAdjust, float ScaledHalfHeightAdjust) override;
+
+	virtual void OnEndCrouch(float HalfHeightAdjust, float ScaledHalfHeightAdjust) override;
 
 protected:
 
@@ -80,8 +88,11 @@ protected:
 	/** Called for looking input */
 	void Look(const FInputActionValue& Value);
 
-
 	void Jump(const FInputActionValue& value);
+
+	void OnCrouchActionStarted(const FInputActionValue& Value);
+
+	void OnCrouchActionEnded(const FInputActionValue& Value);
 			
 
 protected:
@@ -137,5 +148,15 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly)
 		FGameplayTagContainer InAirTags;
+
+	UPROPERTY(EditDefaultsOnly)
+		FGameplayTagContainer CrouchTags;
+
+	// Gameplay Effects
+
+protected:
+
+	UPROPERTY(EditDefaultsOnly)
+		TSubclassOf<UGameplayEffect> CrouchStateEffect;
 };
 
