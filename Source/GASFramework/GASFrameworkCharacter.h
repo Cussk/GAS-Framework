@@ -42,6 +42,10 @@ class AGASFrameworkCharacter : public ACharacter, public IAbilitySystemInterface
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	class UInputAction* CrouchAction;
 
+	/** Sprint Input Action */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	class UInputAction* SprintAction;
+
 	/** Move Input Action */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	class UInputAction* MoveAction;
@@ -88,11 +92,15 @@ protected:
 	/** Called for looking input */
 	void Look(const FInputActionValue& Value);
 
-	void Jump(const FInputActionValue& value);
+	void Jump(const FInputActionValue& Value);
 
 	void OnCrouchActionStarted(const FInputActionValue& Value);
 
 	void OnCrouchActionEnded(const FInputActionValue& Value);
+
+	void OnSprintActionStarted(const FInputActionValue& Value);
+
+	void OnSprintActionEnded(const FInputActionValue& Value);
 			
 
 protected:
@@ -117,6 +125,8 @@ public:
 		void SetCharacterData(const FCharacterData& InCharacterData);
 
 	class UFootstepsComponent* GetFootstepsComponent() const;
+
+	void OnMaxMovementSpeedChanged(const FOnAttributeChangeData& Data);
 
 protected:
 
@@ -152,11 +162,20 @@ protected:
 	UPROPERTY(EditDefaultsOnly)
 		FGameplayTagContainer CrouchTags;
 
+	UPROPERTY(EditDefaultsOnly)
+		FGameplayTagContainer SprintTags;
+
 	// Gameplay Effects
 
 protected:
 
 	UPROPERTY(EditDefaultsOnly)
 		TSubclassOf<UGameplayEffect> CrouchStateEffect;
+
+	// Delegates
+
+protected:
+
+	FDelegateHandle MaxMovementSpeedChangedDelegateHandle;
 };
 

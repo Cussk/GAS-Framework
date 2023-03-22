@@ -70,6 +70,8 @@ AGASFrameworkCharacter::AGASFrameworkCharacter(const FObjectInitializer& ObjectI
 
 	AttributeSet = CreateDefaultSubobject<UGAS_AttributeSetBase>(TEXT("AttributeSet"));
 
+	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(AttributeSet->GetMaxMovementSpeedAttribute()).AddUObject(this, &AGASFrameworkCharacter::OnMaxMovementSpeedChanged);
+
 	FootstepsComponent = CreateDefaultSubobject<UFootstepsComponent>(TEXT("FootstepsComponent"));
 }
 
@@ -216,17 +218,24 @@ void AGASFrameworkCharacter::SetupPlayerInputComponent(class UInputComponent* Pl
 		//EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Triggered, this, &ACharacter::Jump);
 		//EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this, &ACharacter::StopJumping);
 
+		//Moving
+		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &AGASFrameworkCharacter::Move);
+
+		//Looking
+		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &AGASFrameworkCharacter::Look);
+
+		//Movement Abilities
+
+		//Jumping
 		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Triggered, this, &AGASFrameworkCharacter::Jump);
 
 		//Crouching
 		EnhancedInputComponent->BindAction(CrouchAction, ETriggerEvent::Triggered, this, &AGASFrameworkCharacter::OnCrouchActionStarted);
 		EnhancedInputComponent->BindAction(CrouchAction, ETriggerEvent::Completed, this, &AGASFrameworkCharacter::OnCrouchActionEnded);
 
-		//Moving
-		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &AGASFrameworkCharacter::Move);
-
-		//Looking
-		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &AGASFrameworkCharacter::Look);
+		//Sprinting
+		EnhancedInputComponent->BindAction(SprintAction, ETriggerEvent::Started, this, &AGASFrameworkCharacter::OnSprintActionStarted);
+		EnhancedInputComponent->BindAction(SprintAction, ETriggerEvent::Completed, this, &AGASFrameworkCharacter::OnSprintActionEnded);
 
 	}
 
@@ -268,7 +277,7 @@ void AGASFrameworkCharacter::Look(const FInputActionValue& Value)
 	}
 }
 
-void AGASFrameworkCharacter::Jump(const FInputActionValue& value)
+void AGASFrameworkCharacter::Jump(const FInputActionValue& Value)
 {
 	//trigger jump through GAS ability
 
@@ -296,6 +305,22 @@ void AGASFrameworkCharacter::OnCrouchActionEnded(const FInputActionValue& Value)
 	}
 }
 
+void AGASFrameworkCharacter::OnSprintActionStarted(const FInputActionValue& Value)
+{
+	if (AbilitySystemComponent)
+	{
+		AbilitySystemComponent->TryActivateAbilitiesByTag(SprintTags, true);
+	}
+}
+
+void AGASFrameworkCharacter::OnSprintActionEnded(const FInputActionValue& Value)
+{
+	if (AbilitySystemComponent)
+	{
+		AbilitySystemComponent->CancelAbilities(&SprintTags);
+	}
+}
+
 FCharacterData AGASFrameworkCharacter::GetCharacterData() const
 {
 	return CharacterData;
@@ -316,6 +341,11 @@ void AGASFrameworkCharacter::InitFromCharacterData(const FCharacterData& InChara
 UFootstepsComponent* AGASFrameworkCharacter::GetFootstepsComponent() const
 {
 	return FootstepsComponent;
+}
+
+void AGASFrameworkCharacter::OnMaxMovementSpeedChanged(const FOnAttributeChangeData& Data)
+{
+	GetCharacterMovement()->MaxWalkSpeed = Data.NewValue;
 }
 
 void AGASFrameworkCharacter::OnRep_CharacterData()
